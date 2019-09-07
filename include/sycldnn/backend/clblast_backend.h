@@ -153,7 +153,7 @@ class CLBlastBackend final {
    */
   template <typename T>
   internal_pointer_type<T> allocate(size_t n_bytes) {
-    return internal_pointer_type<T>{n_bytes / sizeof(T)};
+    return internal_pointer_type<T>{n_bytes};
   }
 
   /**
@@ -241,6 +241,7 @@ class CLBlastBackend final {
         clWaitForEvents(1, &e);
       });
     });
+    ev.wait();
     return ev;
   }
 
@@ -311,6 +312,7 @@ class CLBlastBackend final {
         clWaitForEvents(1, &e);
       });
     });
+    ev.wait();
     return ev;
   }
 };

@@ -78,7 +78,7 @@ struct SNNBackend final : public SNNMatmulProvider<SNNBackend> {
    * */
   template <typename T>
   internal_pointer_type<T> allocate(size_t n_bytes) {
-    return internal_pointer_type<T>{n_bytes / sizeof(T)};
+    return internal_pointer_type<T>{n_bytes};
   }
 
   /**

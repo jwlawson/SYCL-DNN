@@ -22,13 +22,19 @@ jobs:
 
       - name: Setup OpenCL
         run: |
-          echo "Setup opencl"
+          mkdir ${GITHUB_WORKSPACE}/opencl-tmp ${GITHUB_WORKSPACE}/opencl
+          wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
+          tar xf l_opencl_p_18.1.0.015.tgz -C ${GITHUB_WORKSPACE}/opencl-tmp --strip-components=1
+          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm
+          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio
+          mv ${GITHUB_WORKSPACE}/opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* ${GITHUB_WORKSPACE}/opencl
+
 
       - name: Configure
         run: |
           mkdir ${GITHUB_WORKSPACE}/build
           cd ${GITHUB_WORKSPACE}/build
-          cmake .. -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers
+          cmake .. -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers -DOpencCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so
 
       - name: Build
         run: |

@@ -40,7 +40,7 @@ jobs:
       - name: Setup OpenCL
         if: steps.cache-opencl.outputs.cache-hit != 'true'
         run: |
-          mkdir opencl-tmp ${GITHUB_WORKSPACE}/opencl
+          mkdir opencl-tmp opencl
           wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
           tar xf l_opencl_p_18.1.0.015.tgz -C ${GITHUB_WORKSPACE}/opencl-tmp --strip-components=1
           7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -o${GITHUB_WORKSPACE}/opencl-tmp
@@ -48,8 +48,8 @@ jobs:
           mv ${GITHUB_WORKSPACE}/opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* ${GITHUB_WORKSPACE}/opencl
           pushd ${GITHUB_WORKSPACE}/opencl
           rm libOpenCL.so libOpenCL.so.1 libtbb.so libtbbmalloc.so
-          ln -s libOpenCL.so.2.0 libOpenCL.so.1
-          ln -s libOpenCL.so.2.0 libOpenCL.so
+          ln -s libintelocl.so libOpenCL.so.1
+          ln -s libintelocl.so libOpenCL.so
           ln -s libtbb.so.2 libtbb.so
           ln -s libtbbmalloc.so.2 libtbbmalloc.so
           popd
@@ -62,7 +62,7 @@ jobs:
           cmake ${GITHUB_WORKSPACE}/sycldnn \
             -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp \
             -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers \
-            -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so \
+            -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libOpenCL.so \
             -DSNN_BUILD_DOCUMENTATION=OFF \
             -DSNN_BUILD_TESTS=OFF \
             -DSNN_BUILD_BENCHMARKS=OFF
@@ -70,7 +70,7 @@ jobs:
       - name: Build
         run: |
           cd build
-          make -j`nproc`
+          make -j3
 
       - name: Test
         run: |

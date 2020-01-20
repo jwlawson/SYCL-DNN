@@ -64,16 +64,18 @@ jobs:
             -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers \
             -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so \
             -DSNN_BUILD_DOCUMENTATION=OFF \
+            -DSNN_BUILD_TESTS=OFF \
             -DSNN_BUILD_BENCHMARKS=OFF
 
       - name: Build
         run: |
-          cg build
-          make -j3
+          cd build
+          make -j`nproc`
 
       - name: Test
         run: |
-          cg build
-          ctest --output-on-failure
+          cd build
+          samples/conv2d/conv2d
+          #ctest --output-on-failure
 
 

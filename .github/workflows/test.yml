@@ -25,8 +25,9 @@ jobs:
           mkdir ${GITHUB_WORKSPACE}/opencl-tmp ${GITHUB_WORKSPACE}/opencl
           wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
           tar xf l_opencl_p_18.1.0.015.tgz -C ${GITHUB_WORKSPACE}/opencl-tmp --strip-components=1
-          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm
-          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio
+          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -o${GITHUB_WORKSPACE}/opencl-tmp
+          ls ${GITHUB_WORKSPACE}/opencl-tmp/
+          7z x ${GITHUB_WORKSPACE}/opencl-tmp/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio -o${GITHUB_WORKSPACE}/opencl-tmp
           mv ${GITHUB_WORKSPACE}/opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* ${GITHUB_WORKSPACE}/opencl
 
 

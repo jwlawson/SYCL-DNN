@@ -75,6 +75,7 @@ jobs:
       - name: Test
         run: |
           cd build
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
           samples/conv2d/conv2d
           #ctest --output-on-failure
 

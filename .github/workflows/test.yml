@@ -1,0 +1,41 @@
+name: Build and test
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup ComputeCpp
+        run: |
+          mkdir ${GITHUB_WORKSPACE}/computecpp
+          wget --no-verbose --no-check-certificate https://computecpp.codeplay.com/downloads/computecpp-ce/1.2.0/ubuntu-16.04-64bit.tar.gz
+          tar xf ubuntu-16.04-64bit.tar.gz -C ${GITHUB_WORKSPACE}/computecpp --strip-components=1
+
+      - name: Setup OpenCL headers
+        uses: actions/checkout@v2
+        with:
+          repository: KhronosGroup/OpenCL-Headers
+          path: opencl_headers
+
+      - name: Setup OpenCL
+        run: |
+          echo "Setup opencl"
+
+      - name: Configure
+        run: |
+          mkdir ${GITHUB_WORKSPACE}/build
+          cd ${GITHUB_WORKSPACE}/build
+          cmake .. -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers
+
+      - name: Build
+        run: |
+          cd ${GITHUB_WORKSPACE}/build
+          make -j
+
+      - name: Test
+        run: ctest --output-on-failure
+
+

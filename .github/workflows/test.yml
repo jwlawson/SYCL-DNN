@@ -35,6 +35,7 @@ jobs:
         run: |
           mkdir ${GITHUB_WORKSPACE}/build
           cd ${GITHUB_WORKSPACE}/build
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
           cmake .. -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers -DOpencCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so
 
       - name: Build

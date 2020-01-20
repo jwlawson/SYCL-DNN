@@ -7,6 +7,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          path: sycldnn
 
       - name: Cache ComputeCpp
         id: cache-computecpp
@@ -38,11 +40,10 @@ jobs:
       - name: Setup OpenCL
         if: steps.cache-opencl.outputs.cache-hit != 'true'
         run: |
-          mkdir ${GITHUB_WORKSPACE}/opencl-tmp ${GITHUB_WORKSPACE}/opencl
+          mkdir opencl-tmp ${GITHUB_WORKSPACE}/opencl
           wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
           tar xf l_opencl_p_18.1.0.015.tgz -C ${GITHUB_WORKSPACE}/opencl-tmp --strip-components=1
           7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -o${GITHUB_WORKSPACE}/opencl-tmp
-          ls ${GITHUB_WORKSPACE}/opencl-tmp/
           7z x ${GITHUB_WORKSPACE}/opencl-tmp/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio -o${GITHUB_WORKSPACE}/opencl-tmp
           mv ${GITHUB_WORKSPACE}/opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* ${GITHUB_WORKSPACE}/opencl
           pushd ${GITHUB_WORKSPACE}/opencl
@@ -55,16 +56,24 @@ jobs:
 
       - name: Configure
         run: |
-          mkdir ${GITHUB_WORKSPACE}/build
-          cd ${GITHUB_WORKSPACE}/build
+          mkdir build
+          cd build
           export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
-          cmake .. -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so -DSNN_BUILD_DOCUMENTATION=OFF
+          cmake ${GITHUB_WORKSPACE}/sycldnn \
+            -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp \
+            -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers \
+            -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libintelocl.so \
+            -DSNN_BUILD_DOCUMENTATION=OFF \
+            -DSNN_BUILD_BENCHMARKS=OFF
 
       - name: Build
         run: |
+          cg build
           make -j3
 
       - name: Test
-        run: ctest --output-on-failure
+        run: |
+          cg build
+          ctest --output-on-failure
 
 

@@ -8,7 +8,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache ComputeCpp
+        id: cache-computecpp
+        uses: actions/cache@v1
+        with:
+          path: computecpp
+          key: 1.2.0-linux
+
       - name: Setup ComputeCpp
+        if: steps.cache-computecpp.outputs.cache-hit != 'true'
         run: |
           mkdir ${GITHUB_WORKSPACE}/computecpp
           wget --no-verbose --no-check-certificate https://computecpp.codeplay.com/downloads/computecpp-ce/1.2.0/ubuntu-16.04-64bit.tar.gz
@@ -20,7 +28,15 @@ jobs:
           repository: KhronosGroup/OpenCL-Headers
           path: opencl_headers
 
+      - name: Cache OpenCL
+        id: cache-opencl
+        uses: actions/cache@v1
+        with:
+          path: opencl
+          key: 18.1.0.015-linux
+
       - name: Setup OpenCL
+        if: steps.cache-opencl.outputs.cache-hit != 'true'
         run: |
           mkdir ${GITHUB_WORKSPACE}/opencl-tmp ${GITHUB_WORKSPACE}/opencl
           wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
@@ -37,7 +53,6 @@ jobs:
           ln -s libtbbmalloc.so.2 libtbbmalloc.so
           popd
 
-
       - name: Configure
         run: |
           mkdir ${GITHUB_WORKSPACE}/build
@@ -47,8 +62,7 @@ jobs:
 
       - name: Build
         run: |
-          cd ${GITHUB_WORKSPACE}/build
-          make -j
+          make -j3
 
       - name: Test
         run: ctest --output-on-failure

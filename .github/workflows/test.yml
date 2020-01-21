@@ -42,16 +42,17 @@ jobs:
         run: |
           mkdir opencl-tmp opencl
           wget --no-verbose http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/l_opencl_p_18.1.0.015.tgz
-          tar xf l_opencl_p_18.1.0.015.tgz -C ${GITHUB_WORKSPACE}/opencl-tmp --strip-components=1
-          7z x ${GITHUB_WORKSPACE}/opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -o${GITHUB_WORKSPACE}/opencl-tmp
-          7z x ${GITHUB_WORKSPACE}/opencl-tmp/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio -o${GITHUB_WORKSPACE}/opencl-tmp
-          mv ${GITHUB_WORKSPACE}/opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* ${GITHUB_WORKSPACE}/opencl
-          pushd ${GITHUB_WORKSPACE}/opencl
-          rm libOpenCL.so libOpenCL.so.1 libtbb.so libtbbmalloc.so
-          ln -s libintelocl.so libOpenCL.so.1
-          ln -s libintelocl.so libOpenCL.so
+          tar xf l_opencl_p_18.1.0.015.tgz -Copencl-tmp --strip-components=1
+          7z x opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -oopencl-tmp
+          7z x opencl-tmp/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio -oopencl-tmp
+          mv opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* opencl
+          pushd opencl
+          rm libOpenCL.so libOpenCL.so.1 libOpenCL.so.2.0 libtbb.so libtbbmalloc.so
+          ln -s libOpenCL.so.2.0 libOpenCL.so.1
+          ln -s libOpenCL.so.2.0 libOpenCL.so
           ln -s libtbb.so.2 libtbb.so
           ln -s libtbbmalloc.so.2 libtbbmalloc.so
+          echo ${PWD}/libintelocl.so > intel64.icd
           popd
 
       - name: Configure
@@ -76,6 +77,7 @@ jobs:
         run: |
           cd build
           export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
+          export OCL_ICD_VENDORS=${GITHUB_WORKSPACE}/opencl
           samples/conv2d/conv2d
           #ctest --output-on-failure
 

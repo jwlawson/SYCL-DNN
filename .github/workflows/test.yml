@@ -45,25 +45,24 @@ jobs:
           tar xf l_opencl_p_18.1.0.015.tgz -Copencl-tmp --strip-components=1
           7z x opencl-tmp/rpm/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.rpm -oopencl-tmp
           7z x opencl-tmp/intel-openclrt-18.1.0.015-18.1.0-015.x86_64.cpio -oopencl-tmp
-          mv opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/* opencl
-          pushd opencl
+          mv opencl-tmp/opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib opencl
+          pushd opencl/lib/intel64_lin
           rm libOpenCL.so libOpenCL.so.1 libtbb.so libtbbmalloc.so
           ln -s libOpenCL.so.2.0 libOpenCL.so.1
           ln -s libOpenCL.so.2.0 libOpenCL.so
           ln -s libtbb.so.2 libtbb.so
           ln -s libtbbmalloc.so.2 libtbbmalloc.so
-          echo ${PWD}/libintelocl.so > intel64.icd
           popd
 
       - name: Configure
         run: |
           mkdir build
           cd build
-          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl/lib/intel64_lin
           cmake ${GITHUB_WORKSPACE}/sycldnn \
             -DComputeCpp_DIR=${GITHUB_WORKSPACE}/computecpp \
             -DOpenCL_INCLUDE_DIR=${GITHUB_WORKSPACE}/opencl_headers \
-            -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/libOpenCL.so \
+            -DOpenCL_LIBRARY=${GITHUB_WORKSPACE}/opencl/lib/intel64_lin/libOpenCL.so \
             -DSNN_BUILD_DOCUMENTATION=OFF \
             -DSNN_BUILD_TESTS=OFF \
             -DSNN_BUILD_BENCHMARKS=OFF
@@ -71,13 +70,13 @@ jobs:
       - name: Build
         run: |
           cd build
-          make -j3
+          make -j4
 
       - name: Test
         run: |
           cd build
-          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl
-          export OCL_ICD_VENDORS=${GITHUB_WORKSPACE}/opencl
+          export LD_LIBRARY_PATH=${GITHUB_WORKSPACE}/opencl/lib/intel64_lin
+          export LD_PRELOAD=${GITHUB_WORKSPACE}/opencl/lib/intel64_lin/libintelocl.so
           samples/conv2d/on_chip_memory
           #ctest --output-on-failure
 

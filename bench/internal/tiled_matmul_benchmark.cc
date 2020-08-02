@@ -125,10 +125,17 @@ struct SNNMatmulExecutor : public BaseExecutor {
     {  // Ensure the kernel is built before benchmarking
       SNNStatus status;
       try {
+        if ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0)) {
         status = matmul::internal::queue_kernel<DataType, int32_t, false, false,
-                                                RowTile, AccTile, ColTile>(
+                                                RowTile, AccTile, ColTile, false>(
             lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
             workgroup_rows, workgroup_cols, workgroup_batch);
+        } else {
+        status = matmul::internal::queue_kernel<DataType, int32_t, false, false,
+                                                RowTile, AccTile, ColTile, true>(
+            lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+            workgroup_rows, workgroup_cols, workgroup_batch);
+        }
       } catch (cl::sycl::exception const& e) {
         helpers::handle_exception(e, [&](std::string& msg) {
           state.SkipWithError((msg + UnexpectedFailure).c_str());
@@ -159,11 +166,18 @@ struct SNNMatmulExecutor : public BaseExecutor {
     for (auto _ : state) {
       this->start_timing();
       try {
-        auto status =
-            matmul::internal::queue_kernel<DataType, int32_t, false, false,
-                                           RowTile, AccTile, ColTile>(
-                lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
-                workgroup_rows, workgroup_cols, workgroup_batch);
+        SNNStatus status;
+        if ((m % RowTile == 0) && (k % AccTile == 0) && (n % ColTile == 0)) {
+        status = matmul::internal::queue_kernel<DataType, int32_t, false, false,
+                                                RowTile, AccTile, ColTile, false>(
+            lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+            workgroup_rows, workgroup_cols, workgroup_batch);
+        } else {
+        status = matmul::internal::queue_kernel<DataType, int32_t, false, false,
+                                                RowTile, AccTile, ColTile, true>(
+            lhs_mem, rhs_mem, out_mem, batch, m, k, n, 0.f, queue,
+            workgroup_rows, workgroup_cols, workgroup_batch);
+        }
 
         wait_for_event(status.event, backend.get_queue());
       } catch (cl::sycl::exception const& e) {

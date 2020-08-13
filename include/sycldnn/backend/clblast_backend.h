@@ -208,10 +208,6 @@ class CLBlastBackend final {
         auto b = han.get(b_acc);
         auto o = han.get(o_acc);
 
-        auto lda = TransposeLHS ? m : k;
-        auto ldb = TransposeRHS ? k : n;
-        auto ldc = n;
-
         auto transa = TransposeLHS ? Transpose::kYes : Transpose::kNo;
         auto transb = TransposeRHS ? Transpose::kYes : Transpose::kNo;
 
@@ -219,7 +215,21 @@ class CLBlastBackend final {
 
         cl_event e;
         clblast::StatusCode code;
-        if (n == 1) {
+        if (m == 1) {
+
+          // The LHS matrix is actually a vector. Switch and transpose the
+          // matrices.
+          auto gemv_m = TransposeRHS ? n : k;
+          auto gemv_n = TransposeRHS ? k : n;
+          auto gemv_ldb = gemv_n;
+          auto gemv_transb = TransposeRHS ? Transpose::kNo : Transpose::kYes;
+          constexpr size_t increment = 1;
+          code = clblast::Gemv(clblast::Layout::kRowMajor, gemv_transb, gemv_m,
+                               gemv_n, alpha, b, b_offset, gemv_ldb, a,
+                               a_offset, increment, beta, o, o_offset,
+                               increment, &cl_queue_, &e);
+        } else if (n == 1) {
+          // The RHS matrix is actually a vector
           auto gemv_m = TransposeLHS ? k : m;
           auto gemv_n = TransposeLHS ? m : k;
           auto gemv_lda = gemv_n;
@@ -229,6 +239,10 @@ class CLBlastBackend final {
                                b_offset, increment, beta, o, o_offset,
                                increment, &cl_queue_, &e);
         } else {
+          auto lda = TransposeLHS ? m : k;
+          auto ldb = TransposeRHS ? k : n;
+          auto ldc = n;
+
           code = clblast::Gemm(clblast::Layout::kRowMajor, transa, transb, m, n,
                                k, alpha, a, a_offset, lda, b, b_offset, ldb,
                                beta, o, o_offset, ldc, &cl_queue_, &e);

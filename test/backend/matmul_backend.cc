@@ -55,8 +55,13 @@ using CLBlastBackends = sycldnn::types::TypeList<
     sycldnn::backend::CLBlastBackend
 #endif
     >;
+using clBLASBackends = sycldnn::types::TypeList<
+#ifdef SNN_TEST_CLBLAS
+    sycldnn::backend::clBLASBackend
+#endif
+    >;
 using Backends = sycldnn::types::Concatenate<EigenBackends, SyclblasBackends,
-                                             CLBlastBackends>::type;
+                                             CLBlastBackends, clBLASBackends>::type;
 
 // List the supported data types.
 using DataTypeList = sycldnn::types::KernelDataTypes;

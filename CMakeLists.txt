@@ -55,6 +55,7 @@ option(SNN_FASTBUILD
 option(SNN_TEST_EIGEN "Test Eigen backend" OFF)
 option(SNN_TEST_SYCLBLAS "Test SYCL-BLAS backend" OFF)
 option(SNN_TEST_CLBLAST "Test CLBlast backend" OFF)
+option(SNN_TEST_CLBLAS "Test clBLAS backend" OFF)
 option(SNN_TEST_EIGEN_MATMULS
   "Enable testing using Eigen matmul in addition to internal matmul" OFF)
 option(SNN_TEST_SYCLBLAS_MATMULS

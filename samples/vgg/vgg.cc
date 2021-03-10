@@ -17,6 +17,7 @@
 #include "sycldnn/backend/sycl_blas_backend.h"
 #include "sycldnn/backend/snn_backend.h"
 #include "sycldnn/backend/clblast_backend.h"
+#include "sycldnn/backend/clblas_backend.h"
 
 #include "sycldnn/conv2d/conv_type.h"
 #include "sycldnn/conv2d/launch.h"
@@ -57,6 +58,8 @@ namespace sycl = cl::sycl;
 //using Backend = snn::backend::SyclBLASBackend;
 using Backend = snn::backend::SNNBackend;
 //using Backend = snn::backend::CLBlastBackend;
+//using Backend = snn::backend::clBLASBackend;
+
 using DeviceMem = Backend::pointer_type<float>;
 
 class BiasAdd;

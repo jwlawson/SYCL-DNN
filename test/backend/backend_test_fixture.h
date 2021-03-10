@@ -38,6 +38,11 @@
 #include "sycldnn/backend/clblast_backend.h"
 #endif  // SNN_TEST_CLBLAST
 
+#if defined(SNN_TEST_CLBLAS) || defined(SNN_TEST_CLBLAS_MATMULS)
+#include "src/backend/clblas_backend_provider.h"
+#include "sycldnn/backend/clblas_backend.h"
+#endif  // SNN_TEST_CLBLAS
+
 template <typename Backend>
 struct BackendTestFixture;
 
@@ -79,6 +84,13 @@ inline void BackendTestFixture<sycldnn::backend::SyclBLASBackend>::TearDown() {
 #if defined(SNN_TEST_CLBLAST) || defined(SNN_TEST_CLBLAST_MATMULS)
 template <>
 inline void BackendTestFixture<sycldnn::backend::CLBlastBackend>::TearDown() {
+  provider_.get_backend().get_queue().wait_and_throw();
+}
+#endif  // SNN_TEST_CLBLAST || SNN_TEST_CLBLAST_MATMULS
+
+#if defined(SNN_TEST_CLBLAS) || defined(SNN_TEST_CLBLAS_MATMULS)
+template <>
+inline void BackendTestFixture<sycldnn::backend::clBLASBackend>::TearDown() {
   provider_.get_backend().get_queue().wait_and_throw();
 }
 #endif  // SNN_TEST_CLBLAST || SNN_TEST_CLBLAST_MATMULS

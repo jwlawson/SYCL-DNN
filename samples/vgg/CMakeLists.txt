@@ -1,5 +1,6 @@
 include(HandleSyclBLAS)
 include(HandleCLBlast)
+include(HandleCLBlas)
 
 set(CMAKE_CXX_STANDARD 14)
 snn_executable(
@@ -12,4 +13,5 @@ snn_executable(
     sycl_dnn
     SyclBLAS::SyclBLAS
     clblast
+    clBLAS
 )
